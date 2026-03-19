@@ -1,7 +1,7 @@
 """
 ui/components/sidebar.py
 =========================
-Sidebar complète : paramètres, détection des montées, options avancées, export.
+Sidebar — design Strava : orange, blanc, sections labellisées.
 """
 
 import streamlit as st
@@ -14,21 +14,17 @@ import core.services.climbing_service as climbing_module
 
 
 def render_sidebar():
-    """
-    Affiche la sidebar et retourne un dict de tous les paramètres saisis.
-    Retourne aussi les placeholders ph_fuseau et ph_export.
-    """
-
-    # ── Header ────────────────────────────────────────────────────────────────
+    # ── Logo header Strava style ───────────────────────────────────────────────
     st.sidebar.markdown("""
-    <div style="padding:16px 0 10px 0;border-bottom:1px solid rgba(128,128,128,0.15);margin-bottom:8px">
+    <div style="padding:14px 0 12px 0;border-bottom:2px solid #FC4C02;margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:32px;height:32px;border-radius:8px;
-                    background:linear-gradient(135deg,#0f766e,#0d9488);
-                    display:flex;align-items:center;justify-content:center;font-size:1rem">🚴</div>
+        <div style="width:34px;height:34px;border-radius:8px;
+                    background:#FC4C02;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:1.1rem;box-shadow:0 2px 8px rgba(252,76,2,0.4)">🚴</div>
         <div>
-          <div style="font-weight:800;font-size:0.9rem">Vélo & Météo</div>
-          <div style="font-size:0.68rem;opacity:0.45">Analyse de tracé GPX</div>
+          <div style="font-weight:900;font-size:0.95rem;color:#111827;letter-spacing:-0.3px">Vélo & Météo</div>
+          <div style="font-size:0.63rem;color:#9CA3AF;margin-top:1px;font-weight:500">Analyse de tracé GPX</div>
         </div>
       </div>
     </div>""", unsafe_allow_html=True)
@@ -105,43 +101,36 @@ def render_sidebar():
                 st.session_state["_last_sensibilite"] = niv
             st.slider("Seuil départ (%)", 0.5, 5.0, step=0.5, key="seuil_debut")
             st.slider("Seuil fin (%)",    0.0, 3.0, step=0.5, key="seuil_fin")
-            st.slider("Fusion (D− max, m)", 10, 200, step=10, key="fusion_m")
+            st.slider("Fusion (D− max, m)", 10, 200, step=10,  key="fusion_m")
 
         climbing_module.SEUIL_DEBUT           = st.session_state.seuil_debut
         climbing_module.SEUIL_FIN             = st.session_state.seuil_fin
         climbing_module.MAX_DESCENTE_FUSION_M = st.session_state.fusion_m
 
     # ── Options avancées ──────────────────────────────────────────────────────
-    st.sidebar.divider()
     with st.sidebar.expander("🔧 Options avancées", expanded=False):
         noms_osm = st.toggle("🗺️ Nommer les cols (OpenStreetMap)", value=False,
             help="Peut être lent ou indisponible sur Streamlit Cloud.")
         if noms_osm:
-            st.sidebar.warning("⚠️ Serveurs Overpass souvent surchargés sur Streamlit Cloud.")
+            st.warning("⚠️ Serveurs Overpass souvent surchargés sur Streamlit Cloud.")
         gemini_key = st.text_input("🤖 Clé API Gemini", value="", type="password",
             help="Clé gratuite sur aistudio.google.com.")
 
     # ── Placeholders ──────────────────────────────────────────────────────────
     ph_fuseau = st.sidebar.empty()
-    ph_fuseau.info("🌍 Fuseau : en attente…")
+    ph_fuseau.markdown("""
+    <div style="background:#F5F5F5;border-radius:8px;padding:7px 12px;
+                font-size:0.78rem;color:#9CA3AF;margin:6px 0">
+      🌍 Fuseau : en attente…
+    </div>""", unsafe_allow_html=True)
     ph_export = st.sidebar.empty()
 
     return dict(
-        fichier=fichier,
-        date_dep=date_dep,
-        heure_dep=heure_dep,
-        vitesse=vitesse,
-        mode=mode,
-        ref_val=ref_val,
-        poids=poids,
-        fc_max=fc_max,
-        ftp_fc=ftp_fc,
-        intervalle=intervalle,
-        intervalle_sec=intervalle * 60,
-        noms_osm=noms_osm,
-        gemini_key=gemini_key,
-        ph_fuseau=ph_fuseau,
-        ph_export=ph_export,
+        fichier=fichier, date_dep=date_dep, heure_dep=heure_dep,
+        vitesse=vitesse, mode=mode, ref_val=ref_val, poids=poids,
+        fc_max=fc_max, ftp_fc=ftp_fc, intervalle=intervalle,
+        intervalle_sec=intervalle * 60, noms_osm=noms_osm,
+        gemini_key=gemini_key, ph_fuseau=ph_fuseau, ph_export=ph_export,
     )
 
 
@@ -149,7 +138,6 @@ def render_export(ph_export, points_gpx, resultats, ascensions, points_eau,
                   score, dist_tot, d_plus, d_moins, temps_s, date_depart,
                   heure_arr, vitesse, vit_moy_reelle, calories, df_profil,
                   ref_val, mode, poids, date_dep):
-    """Affiche le bouton export dans la sidebar."""
     from ui.map_builder import creer_carte
     from ui.components.export import generer_html_resume
 
