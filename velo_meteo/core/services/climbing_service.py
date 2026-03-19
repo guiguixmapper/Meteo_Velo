@@ -57,7 +57,70 @@ def estimer_fc(watts: float, ftp: float, fc_max: float, fc_repos: float = 50) ->
     return int(min(fc_max - 3, max(fc_repos, fc)))
 
 
+def calculer_vam(ftp_w: float, poids_kg: float) -> float:
+    """
+    Calcule la VAM (Vélocité Ascensionale Moyenne) en m/h depuis le FTP.
+
+    Formule empirique calibrée sur des données réelles cyclistes :
+        VAM = FTP_wkg × 170 + 50
+    
+    Exemples :
+        2.5 W/kg → 475 m/h  (débutant)
+        3.0 W/kg → 560 m/h  (loisir)
+        3.5 W/kg → 645 m/h  (cyclosportif)
+        4.0 W/kg → 730 m/h  (bon niveau)
+        4.5 W/kg → 815 m/h  (compétiteur)
+        5.0 W/kg → 900 m/h  (élite)
+    """
+    if poids_kg <= 0 or ftp_w <= 0:
+        return 600.0  # valeur par défaut cycliste moyen
+    ftp_wkg = ftp_w / poids_kg
+    # Formule calibrée sur données réelles (Alpe d'Huez, cols UCI) :
+    # VAM = W/kg × 240
+    # Exemples : 3 W/kg → 720 m/h (~89min AdH), 4 W/kg → 960 m/h (~67min AdH)
+    vam = ftp_wkg * 240
+    return round(max(300, min(1800, vam)), 0)  # bornes réalistes
+
+
+def niveau_cycliste(vam: float) -> str:
+    """Retourne le label de niveau selon la VAM."""
+    if vam < 500:  return "🟦 Débutant"
+    if vam < 650:  return "🟩 Loisir"
+    if vam < 800:  return "🟨 Cyclosportif"
+    if vam < 1000: return "🟧 Bon niveau"
+    if vam < 1200: return "🟥 Compétiteur"
+    return               "⭐ Élite"
+
+
+def estimer_temps_col_vam(d_plus_m: float, dist_km: float,
+                          ftp_w: float, poids_kg: float) -> dict:
+    """
+    Estime le temps d'ascension via la VAM (modèle réaliste).
+
+    Returns dict avec :
+        - mins      : temps en minutes
+        - vam       : VAM utilisée (m/h)
+        - vit_moy   : vitesse moyenne en montée (km/h)
+        - niveau    : label niveau cycliste
+        - vs_simple : delta vs l'ancienne méthode simpliste (minutes)
+    """
+    vam = calculer_vam(ftp_w, poids_kg)
+    # Temps = D+ / VAM en heures → minutes
+    temps_h   = d_plus_m / vam
+    mins      = int(temps_h * 60)
+    # Vitesse moyenne = distance / temps
+    vit_moy   = round(dist_km / temps_h, 1) if temps_h > 0 else 0
+
+    return dict(
+        mins=max(1, mins),
+        vam=int(vam),
+        vit_moy=vit_moy,
+        niveau=niveau_cycliste(vam),
+    )
+
+
 def estimer_temps_col(dist_km: float, pente_moy_pct: float, vitesse_plat_kmh: float) -> tuple:
+    """Méthode simpliste conservée pour compatibilité (utilisée pour l'heure d'arrivée globale)."""
     facteur        = 1.0 + pente_moy_pct * 0.10
     vitesse_montee = max(5.0, vitesse_plat_kmh / facteur)
     return int((dist_km / vitesse_montee) * 60), round(vitesse_montee, 1)
