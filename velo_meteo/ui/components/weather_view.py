@@ -101,7 +101,7 @@ def render_weather_view(resultats, analyse_meteo, uv_pollen, err_meteo):
 
     st.divider()
     st.caption("Température · Vent & Rafales · Probabilité de pluie.")
-    st.plotly_chart(creer_figure_meteo(resultats), width='stretch')
+    st.plotly_chart(creer_figure_meteo(resultats), width='stretch', key="weather_chart")
 
     c1, c2 = st.columns(2)
     with c1:
