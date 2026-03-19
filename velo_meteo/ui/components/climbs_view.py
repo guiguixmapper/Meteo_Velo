@@ -56,7 +56,7 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
         f"{a.get('Nom','') + ' — ' if a.get('Nom','—') != '—' else ''}"
         f"{a['Catégorie']} — Km {a['Départ (km)']}→{a['Sommet (km)']} ({a['Longueur']}, {a['Dénivelé']})"
         for a in ascensions]
-    col_choix = st.selectbox("Choisir une montée :", options=noms_cols, index=0)
+    col_choix = st.selectbox("Choisir une montée :", options=noms_cols, index=0, key="climbs_selectbox")
     asc_sel   = ascensions[noms_cols.index(col_choix)]
     dk_sel    = asc_sel["_sommet_km"] - asc_sel["_debut_km"]
     seg_defaut = 0.5 if dk_sel < 5 else 1.0 if dk_sel < 15 else 2.0
