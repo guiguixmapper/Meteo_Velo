@@ -179,7 +179,7 @@ def render_profile_view(df_profil, ascensions, vitesse, ref_val, mode, poids):
         col_ctrl1, col_ctrl2 = st.columns([3, 1])
         with col_ctrl1:
             seg_km = st.slider("Longueur des segments (km)", 0.25,
-                               min(5.0, dk_sel / 2), float(seg_defaut), 0.25)
+                               min(5.0, dk_sel / 2), float(seg_defaut), 0.25, key="profile_slider")
         with col_ctrl2:
             st.metric("Segments", max(2, int(dk_sel / seg_km)))
         if not df_profil.empty:
