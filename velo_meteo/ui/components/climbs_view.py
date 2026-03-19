@@ -63,7 +63,7 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
     col_ctrl1, col_ctrl2 = st.columns([3, 1])
     with col_ctrl1:
         seg_km = st.slider("Longueur des segments (km)", 0.25,
-                           min(5.0, dk_sel / 2), float(seg_defaut), 0.25)
+                           min(5.0, dk_sel / 2), float(seg_defaut), 0.25, key="climbs_slider")
     with col_ctrl2:
         nb_segs = max(2, int(dk_sel / seg_km))
         st.metric("Segments", nb_segs)
