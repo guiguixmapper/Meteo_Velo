@@ -32,7 +32,7 @@ def render_map_view(points_gpx, resultats, ascensions, points_eau, infos_soleil,
             st.warning(f"⚠️ Arrivée après le coucher ({cs} UTC) — prévoyez un éclairage.")
 
     # Fond de carte
-    fond_choisi = st.selectbox("🖼️ Fond de carte", options=list(FONDS_CARTE.keys()), index=0)
+    fond_choisi = st.selectbox("🖼️ Fond de carte", options=list(FONDS_CARTE.keys()), index=0, key="map_fond")
     tiles, attr = FONDS_CARTE[fond_choisi]
 
     # Cache carte dans session_state
