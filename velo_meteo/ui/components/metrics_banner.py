@@ -1,7 +1,7 @@
 """
 ui/components/metrics_banner.py
 ================================
-Bandeau score + métriques en haut de page.
+Bandeau score + métriques — design Strava.
 """
 
 import streamlit as st
@@ -16,7 +16,7 @@ def render_metrics_banner(score: dict, dist_tot: float, d_plus: float, d_moins: 
     st.markdown(f"""
     <div class="score-banner">
       <div class="score-left">
-        <div class="score-num">{score['total']}<span style="font-size:1.1rem;font-weight:600;opacity:0.7">/10</span></div>
+        <div class="score-num">{score['total']}<span>/10</span></div>
         <div class="score-lbl">{score['label']}</div>
         <div class="score-badges">
           <span class="score-badge">🌤️ {score['score_meteo']}/6</span>
@@ -26,31 +26,38 @@ def render_metrics_banner(score: dict, dist_tot: float, d_plus: float, d_moins: 
       <div class="metric-grid">
         <div class="metric-cell">
           <div class="mv">{round(dist_tot/1000,1)}</div>
-          <div class="mu">km</div><div class="ml">Distance</div>
+          <div class="mu">km</div>
+          <div class="ml">Distance</div>
         </div>
         <div class="metric-cell">
           <div class="mv">{int(d_plus)}</div>
-          <div class="mu">m</div><div class="ml">D+</div>
+          <div class="mu">m</div>
+          <div class="ml">D+</div>
         </div>
         <div class="metric-cell">
           <div class="mv">{int(d_moins)}</div>
-          <div class="mu">m</div><div class="ml">D−</div>
+          <div class="mu">m</div>
+          <div class="ml">D−</div>
         </div>
         <div class="metric-cell">
           <div class="mv">{dh}h{dm:02d}</div>
-          <div class="mu">min</div><div class="ml">Durée</div>
+          <div class="mu">&nbsp;</div>
+          <div class="ml">Durée</div>
         </div>
         <div class="metric-cell">
-          <div class="mv green">{vit_moy_reelle}</div>
-          <div class="mu">km/h</div><div class="ml">Moy. réelle</div>
+          <div class="mv orange">{vit_moy_reelle}</div>
+          <div class="mu">km/h</div>
+          <div class="ml">Moy. réelle</div>
         </div>
         <div class="metric-cell">
           <div class="mv">{heure_arr.strftime('%H:%M')}</div>
-          <div class="mu">&nbsp;</div><div class="ml">Arrivée</div>
+          <div class="mu">&nbsp;</div>
+          <div class="ml">Arrivée</div>
         </div>
         <div class="metric-cell">
           <div class="mv">{calories}</div>
-          <div class="mu">kcal</div><div class="ml">Calories</div>
+          <div class="mu">kcal</div>
+          <div class="ml">Calories</div>
         </div>
       </div>
     </div>""", unsafe_allow_html=True)
