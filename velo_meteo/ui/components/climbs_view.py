@@ -40,7 +40,7 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
     if "Nom" not in df_asc.columns:
         df_asc["Nom"] = "—"
 
-    st.dataframe(df_asc[cols_aff], width='stretch', hide_index=True,
+    st.dataframe(df_asc[cols_aff], width='stretch', hide_index=True, key="climbs_df",
         column_config={
             "Nom":            st.column_config.TextColumn("🏔️ Nom OSM"),
             "Effort val":     st.column_config.TextColumn("% FTP" if mode == "⚡ Puissance" else "FC estimée"),
@@ -70,5 +70,5 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
     if not df_profil.empty:
         fig_col = creer_figure_col(df_profil, asc_sel, nb_segments=nb_segs)
         if fig_col:
-            st.plotly_chart(fig_col, width='stretch')
+            st.plotly_chart(fig_col, width='stretch', key="climbs_fig_col")
         st.markdown("**Intensité de pente :** 🟢 <3% · 🟡 3–6% · 🟠 6–8% · 🔴 8–12% · 🟤 >12%")
