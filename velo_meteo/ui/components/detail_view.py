@@ -29,7 +29,7 @@ def render_detail_view(resultats, intervalle):
             "Direction":   cp.get("Dir", "—"),
             "Effet vent":  cp.get("effet", "—"),
         })
-    st.dataframe(pd.DataFrame(lignes), width='stretch', hide_index=True,
+    st.dataframe(pd.DataFrame(lignes), width='stretch', hide_index=True, key="detail_df",
                  height=min(800, 56 + 35 * len(lignes)),
         column_config={
             "Heure":       st.column_config.TextColumn("🕐 Heure"),
