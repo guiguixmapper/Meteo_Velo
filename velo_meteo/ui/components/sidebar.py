@@ -6,8 +6,11 @@ Sidebar complète : paramètres, détection des montées, options avancées, exp
 
 import streamlit as st
 import base64
-import climbing as climbing_module
-from config.settings import SENSIBILITE_LABELS, SENSIBILITE_PARAMS
+from config.settings import (
+    SENSIBILITE_LABELS, SENSIBILITE_PARAMS,
+    SEUIL_DEBUT, SEUIL_FIN, MAX_DESCENTE_FUSION_M,
+)
+import core.services.climbing_service as climbing_module
 
 
 def render_sidebar():
@@ -72,9 +75,9 @@ def render_sidebar():
     st.sidebar.divider()
     with st.sidebar.expander("🏔️ Détection des montées", expanded=False):
         for key, default in [("sensibilite", 3),
-                              ("seuil_debut", float(climbing_module.SEUIL_DEBUT)),
-                              ("seuil_fin",   float(climbing_module.SEUIL_FIN)),
-                              ("fusion_m",    int(climbing_module.MAX_DESCENTE_FUSION_M))]:
+                              ("seuil_debut", float(SEUIL_DEBUT)),
+                              ("seuil_fin",   float(SEUIL_FIN)),
+                              ("fusion_m",    int(MAX_DESCENTE_FUSION_M))]:
             if key not in st.session_state:
                 st.session_state[key] = default
 
