@@ -9,16 +9,22 @@ import pandas as pd
 from config.settings import LEGENDE_UCI
 from core.services.climbing_service import (
     estimer_watts, estimer_fc, get_zone, zones_actives,
+    estimer_temps_col_vam, niveau_cycliste, calculer_vam,
 )
 from ui.components.profile_view import creer_figure_col
 
 
-def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, poids):
+def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, poids, ftp_w=None):
     st.caption(LEGENDE_UCI)
 
     if not ascensions:
         st.success("🚴‍♂️ Aucune difficulté catégorisée — parcours roulant !")
         return
+
+    # VAM depuis FTP
+    _ftp = ftp_w if ftp_w and ftp_w > 0 else (ref_val if mode == "⚡ Puissance" else ftp_fc)
+    _vam = calculer_vam(_ftp, poids)
+    _niveau = niveau_cycliste(_vam)
 
     for a in ascensions:
         w       = estimer_watts(a["_pente_moy"], vitesse, poids)
@@ -32,10 +38,16 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
         a["Effort"] = ("🔴 Max"       if pct > 105 else "🟠 Très dur"  if pct > 95
                        else "🟡 Difficile" if pct > 80  else "🟢 Modéré"    if pct > 60
                        else "🔵 Endurance")
+        # Temps VAM réaliste
+        dk_m = (a["_sommet_km"] - a["_debut_km"]) * 1000
+        dp_m = float(a["Dénivelé"].replace(" m", ""))
+        vam_res = estimer_temps_col_vam(dp_m, dk_m / 1000, _ftp, poids)
+        a["Temps VAM"]     = f"{vam_res['mins']} min ({vam_res['vit_moy']} km/h)"
+        a["VAM (m/h)"]     = vam_res["vam"]
 
     cols_aff = ["Catégorie", "Nom", "Départ (km)", "Sommet (km)", "Longueur",
                 "Dénivelé", "Pente moy.", "Pente max", "Alt. sommet",
-                "Score UCI", "Temps col", "Arrivée sommet", "Puissance", "Effort val", "Zone", "Effort"]
+                "Score UCI", "Temps VAM", "VAM (m/h)", "Arrivée sommet", "Puissance", "Effort val", "Zone", "Effort"]
     df_asc = pd.DataFrame(ascensions)
     if "Nom" not in df_asc.columns:
         df_asc["Nom"] = "—"
@@ -44,11 +56,19 @@ def render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, po
         column_config={
             "Nom":            st.column_config.TextColumn("🏔️ Nom OSM"),
             "Effort val":     st.column_config.TextColumn("% FTP" if mode == "⚡ Puissance" else "FC estimée"),
-            "Temps col":      st.column_config.TextColumn("⏱️ Temps col"),
+            "Temps VAM":      st.column_config.TextColumn("⏱️ Temps réaliste (VAM)"),
+            "VAM (m/h)":      st.column_config.NumberColumn("📈 VAM m/h"),
             "Arrivée sommet": st.column_config.TextColumn("🏁 Arrivée sommet"),
             "Zone":           st.column_config.TextColumn("Zone"),
             "Effort":         st.column_config.TextColumn("Effort"),
         })
+
+    # Info VAM
+    st.markdown(
+        f'<div style="font-size:0.8rem;opacity:0.7;margin-top:4px">' +
+        f'📈 Temps basé sur VAM {int(_vam)} m/h — {_niveau} ' +
+        f'(FTP {int(_ftp)}W / {round(_ftp/poids,1)} W/kg)' +
+        f'</div>', unsafe_allow_html=True)
 
     st.divider()
     st.subheader("🔍 Profil détaillé d'une montée")
