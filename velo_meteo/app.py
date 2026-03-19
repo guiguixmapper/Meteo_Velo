@@ -248,7 +248,7 @@ def main():
         render_weather_view(resultats, analyse_meteo, uv_pollen, err_meteo)
 
     with tab_cols:
-        render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, poids)
+        render_climbs_view(ascensions, df_profil, vitesse, ref_val, ftp_fc, mode, poids, ftp_w=ref_val if mode == "⚡ Puissance" else ftp_fc)
 
     with tab_detail:
         render_detail_view(resultats, intervalle)
