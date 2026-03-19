@@ -143,14 +143,14 @@ def render_profile_view(df_profil, ascensions, vitesse, ref_val, mode, poids):
             f"{a.get('Nom','') + ' — ' if a.get('Nom','—') != '—' else ''}"
             f"{a['Catégorie']} — Km {a['Départ (km)']}→{a['Sommet (km)']} ({a['Longueur']})"
             for a in ascensions]
-        choix = st.selectbox("🔍 Mettre en avant :", options=noms_liste, index=0)
+        choix = st.selectbox("🔍 Mettre en avant :", options=noms_liste, index=0, key="profile_highlight")
         if choix != "(toutes les côtes)":
             idx_survol = noms_liste.index(choix) - 1
 
     if not df_profil.empty:
         st.plotly_chart(
             creer_figure_profil(df_profil, ascensions, vitesse, ref_val, mode, poids, idx_survol),
-            width='stretch')
+            width='stretch', key="profile_main_chart")
 
     # Légende catégories UCI
     cats_presentes = list({asc["Catégorie"]: COULEURS_CAT.get(asc["Catégorie"], "#94a3b8")
@@ -185,5 +185,5 @@ def render_profile_view(df_profil, ascensions, vitesse, ref_val, mode, poids):
         if not df_profil.empty:
             fig_col = creer_figure_col(df_profil, asc_sel, nb_segments=max(2, int(dk_sel / seg_km)))
             if fig_col:
-                st.plotly_chart(fig_col, width='stretch')
+                st.plotly_chart(fig_col, width='stretch', key="profile_col_chart")
             st.markdown("**Intensité de pente :** 🟢 <3% · 🟡 3–6% · 🟠 6–8% · 🔴 8–12% · 🟤 >12%")
