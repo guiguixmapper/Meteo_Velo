@@ -172,24 +172,57 @@ def creer_carte(points_gpx: list, resultats: list, ascensions: list, points_eau:
         kwargs["attr"] = attr
     carte = folium.Map(**kwargs)
 
-    fg_trace = folium.FeatureGroup(name="📍 Parcours",     show=True)
+    # ── Deux calques séparés pour le tracé ──
+    fg_trace_pente     = folium.FeatureGroup(name="📍 Parcours (Pente)", show=True)
+    fg_trace_classique = folium.FeatureGroup(name="📍 Parcours (Classique)", show=False)
+    
     fg_meteo = folium.FeatureGroup(name="🌤️ Météo",       show=True)
     fg_cols  = folium.FeatureGroup(name="🏔️ Ascensions",  show=True)
     fg_eau   = folium.FeatureGroup(name="💧 Points d'eau", show=True)
 
-    # Tracé
+    # ── 1. Tracé Classique (Bleu uni) ──
     folium.PolyLine([[p.latitude, p.longitude] for p in points_gpx],
-                    color="#2563eb", weight=5, opacity=0.88).add_to(fg_trace)
+                    color="#2563eb", weight=5, opacity=0.88).add_to(fg_trace_classique)
+
+    # ── 2. Tracé Dynamique (Pente colorée) ──
+    current_color = None
+    current_segment = []
+    
+    for i in range(1, len(points_gpx)):
+        p1, p2 = points_gpx[i-1], points_gpx[i]
+        d = p1.distance_2d(p2) or 0
+        slope = ((p2.elevation - p1.elevation) / d * 100) if d > 0 and p1.elevation and p2.elevation else 0
+        
+        # Choix des couleurs selon la pente
+        if slope < -2:   color = "#007AFF" # Descente (Bleu)
+        elif slope <= 3: color = "#34C759" # Plat (Vert)
+        elif slope <= 7: color = "#FFCC00" # Modéré (Jaune)
+        elif slope <= 10:color = "#FF9500" # Difficile (Orange)
+        else:            color = "#FF3B30" # Mur (Rouge)
+        
+        if color != current_color:
+            if current_segment:
+                current_segment.append([p1.latitude, p1.longitude])
+                folium.PolyLine(current_segment, color=current_color, weight=5, opacity=0.9).add_to(fg_trace_pente)
+            current_segment = [[p1.latitude, p1.longitude]]
+            current_color = color
+            
+        current_segment.append([p2.latitude, p2.longitude])
+        
+    if current_segment:
+        folium.PolyLine(current_segment, color=current_color, weight=5, opacity=0.9).add_to(fg_trace_pente)
+
+    # ── Départ et Arrivée (Toujours visibles) ──
     folium.Marker([points_gpx[0].latitude, points_gpx[0].longitude],
                   tooltip=folium.Tooltip("🚦 Départ", sticky=True),
                   icon=folium.DivIcon(html=_rond("▶", "#34C759", size=32, font=13),
-                                      icon_size=(32,32), icon_anchor=(16,16))).add_to(fg_trace)
+                                      icon_size=(32,32), icon_anchor=(16,16))).add_to(carte)
     folium.Marker([points_gpx[-1].latitude, points_gpx[-1].longitude],
                   tooltip=folium.Tooltip("🏁 Arrivée", sticky=True),
                   icon=folium.DivIcon(html=_rond("🏁", "#FF3B30", size=32, font=14),
-                                      icon_size=(32,32), icon_anchor=(16,16))).add_to(fg_trace)
+                                      icon_size=(32,32), icon_anchor=(16,16))).add_to(carte)
 
-    # Météo
+    # ── Météo ──
     for cp in resultats:
         t = cp.get("temp_val")
         if t is None:
@@ -203,7 +236,7 @@ def creer_carte(points_gpx: list, resultats: list, ascensions: list, points_eau:
                                 icon_size=(50,24), icon_anchor=(25,12)),
         ).add_to(fg_meteo)
 
-    # Ascensions
+    # ── Ascensions ──
     for asc in ascensions:
         lat_s = asc.get("_lat_sommet")
         lon_s = asc.get("_lon_sommet")
@@ -221,7 +254,7 @@ def creer_carte(points_gpx: list, resultats: list, ascensions: list, points_eau:
                                 icon_size=(28,28), icon_anchor=(14,14)),
         ).add_to(fg_cols)
 
-    # Points d'eau
+    # ── Points d'eau ──
     for pt in points_eau:
         type_eau = pt.get("type", "eau")
         coul     = _couleur_eau(type_eau)
@@ -234,9 +267,11 @@ def creer_carte(points_gpx: list, resultats: list, ascensions: list, points_eau:
                                 icon_size=(26,26), icon_anchor=(13,13)),
         ).add_to(fg_eau)
 
-    for fg in [fg_trace, fg_meteo, fg_cols, fg_eau]:
+    # ── Ajout des groupes sur la carte ──
+    for fg in [fg_trace_pente, fg_trace_classique, fg_meteo, fg_cols, fg_eau]:
         fg.add_to(carte)
 
     folium.LayerControl(collapsed=False, position="topright").add_to(carte)
     carte.get_root().html.add_child(folium.Element(CSS_LAYERS))
+    
     return carte
