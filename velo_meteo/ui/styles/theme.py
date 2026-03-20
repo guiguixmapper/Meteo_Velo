@@ -209,6 +209,9 @@ CSS = """
 
   /* ── Slider accent Strava ── */
   [data-testid="stSlider"] > div > div > div { background: #FC4C02 !important; }
+
+  [data-testid="stSlider"] div[data-baseweb="slider"] div { 
+      background-color: transparent !important;
   
   /* ── Sidebar header border ── */
   .sb-header-border {
