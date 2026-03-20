@@ -13,7 +13,7 @@ CSS = """
   }
 
   footer { visibility: hidden; }
-  .block-container { padding-top: 0.5rem !important; padding-bottom: 2rem !important; }
+  .block-container { padding-top: 2.5rem !important; padding-bottom: 2rem !important; }
 
   /* ── Palette Strava — variables adaptatives ── */
   :root {
