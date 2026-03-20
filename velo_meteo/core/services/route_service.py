@@ -113,57 +113,59 @@ def analyser_meteo_detaillee(resultats: list, dist_tot: float) -> dict | None:
     )
 
 
-def calculer_score(resultats: list, ascensions: list, d_plus: float,
-                   vitesse: float, ref_val: float, mode: str, poids: float) -> dict:
-    valides = [cp for cp in resultats if cp.get("temp_val") is not None]
+def calculer_score(resultats, ascensions, d_plus, vitesse, ref_val, mode, poids, dist_tot):
+    """
+    Calcule l'Indice de Roulabilité sur 10 basé sur la physique.
+    10 = Sortie parfaite. On soustrait les forces résistantes.
+    """
+    dist_km = dist_tot / 1000.0
+    
+    # 1. Coût Gravitationnel (La Route)
+    cout_gravite = (dist_km / 30.0) + (d_plus / 300.0)
+    
+    # 2. Coûts Météo (Moyenne sur les points de passage)
+    total_aero = 0.0
+    total_roulement = 0.0
+    total_thermique = 0.0
+    nb_cp = max(1, len(resultats))
+    
+    for cp in resultats:
+        v_vent = cp.get("vent_val", 0)
+        pluie = cp.get("pluie_pct", 0)
+        temp = cp.get("temp_val", 20)
+        effet = cp.get("effet", "")
+        
+        # Perte thermique et densité de l'air (idéal = 20°C)
+        total_thermique += abs(temp - 20) / 10.0
+        
+        # Résistance au roulement (asphalte mouillé)
+        total_roulement += pluie * 0.02
+        
+        # Traînée aérodynamique (vitesse au carré)
+        if "Face" in effet:
+            total_aero += (v_vent ** 2) / 200.0
+        elif "Côté" in effet:
+            total_aero += (v_vent ** 2) / 400.0
+        elif "Dos" in effet:
+            total_aero -= (v_vent ** 2) / 300.0 # Force propulsive !
+            
+    # Lissage des coûts météo sur tout le parcours
+    cout_meteo = (total_aero + total_roulement + total_thermique) / nb_cp
+    
+    # 3. Score Final (Plafonné entre 0 et 10)
+    score_brut = 10.0 - (cout_gravite + cout_meteo)
+    score_final = max(0.0, min(10.0, score_brut))
+    
+    # 4. Labels d'expérience utilisateur
+    if score_final >= 8.0:   label = "CONDITIONS IDÉALES"
+    elif score_final >= 6.0: label = "TRÈS BONNE SORTIE"
+    elif score_final >= 4.0: label = "SORTIE EXIGEANTE"
+    elif score_final >= 2.0: label = "VRAIE GALÈRE"
+    else:                    label = "ENFER ABSOLU"
 
-    if valides:
-        tm = sum(cp["temp_val"] for cp in valides) / len(valides)
-        if   15 <= tm <= 22: s_temp = 2.0
-        elif 10 <= tm <= 27: s_temp = 1.5
-        elif  5 <= tm <= 32: s_temp = 0.8
-        elif  0 <= tm:       s_temp = 0.3
-        else:                s_temp = 0.0
-
-        POIDS_EFFET = {"⬇️ Face": 1.5, "↙️ Côté (D)": 0.7, "↘️ Côté (G)": 0.7, "⬆️ Dos": -0.3, "—": 0.5}
-        ve_moy  = sum((cp.get("vent_val") or 0) * POIDS_EFFET.get(cp.get("effet", "—"), 0.5) for cp in valides) / len(valides)
-        if   ve_moy <= 8:  s_vent = 2.0
-        elif ve_moy <= 18: s_vent = 1.5
-        elif ve_moy <= 30: s_vent = 0.8
-        elif ve_moy <= 45: s_vent = 0.3
-        else:              s_vent = 0.0
-
-        pm      = sum(cp.get("pluie_pct") or 0 for cp in valides) / len(valides)
-        s_pluie = round(max(0.0, 2.0 * (1 - pm / 100)), 2)
-        sm      = s_temp + s_vent + s_pluie
-    else:
-        sm = 3.0
-
-    dist_km = sum(cp.get("Km", 0) for cp in resultats[-1:])
-    s_dist  = 0.5 if dist_km < 30 else 0.7 if dist_km < 80 else 0.9 if dist_km < 150 else 1.0
-    s_dplus = 0.5 if d_plus < 300 else 0.7 if d_plus < 1000 else 0.9 if d_plus < 2500 else 1.0
-    s_parcours = s_dist + s_dplus
-
-    if ascensions and ref_val > 0:
-        wm  = sum(estimer_watts(a["_pente_moy"], vitesse, poids) for a in ascensions) / len(ascensions)
-        pct = wm / ref_val if mode == "⚡ Puissance" else 0.85
-        if   pct <= 0.50: s_effort = 0.8
-        elif pct <= 0.70: s_effort = 1.2
-        elif pct <= 0.90: s_effort = 2.0
-        elif pct <= 1.05: s_effort = 1.5
-        else:             s_effort = 0.8
-    else:
-        s_effort = 1.0
-
-    sc    = max(2.0, s_parcours + s_effort)
-    total = round(min(10.0, max(0.0, sm + sc)), 1)
-    lbl   = ("🔴 Déconseillé"           if total < 3.5 else
-             "🟠 Conditions difficiles"  if total < 5.0 else
-             "🟡 Conditions correctes"   if total < 6.5 else
-             "🟢 Bonne sortie"           if total < 8.0 else
-             "⭐ Conditions idéales")
-
-    return dict(total=total, label=lbl,
-                score_meteo=round(max(0.0, sm), 1),
-                score_cols=round(sc, 1),
-                score_effort=round(s_effort, 1))
+    return {
+        "total": round(score_final, 1),
+        "label": label,
+        "cout_gravite": round(cout_gravite, 1),
+        "cout_meteo": round(cout_meteo, 1)
+    }
