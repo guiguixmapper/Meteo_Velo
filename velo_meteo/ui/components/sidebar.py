@@ -23,8 +23,8 @@ def render_sidebar():
                     display:flex;align-items:center;justify-content:center;
                     font-size:1.1rem;box-shadow:0 2px 8px rgba(252,76,2,0.4)">🚴</div>
         <div>
-          <div style="font-weight:900;font-size:0.95rem;color:#111827;letter-spacing:-0.3px">Vélo & Météo</div>
-          <div style="font-size:0.63rem;color:#9CA3AF;margin-top:1px;font-weight:500">Analyse de tracé GPX</div>
+          <div style="font-weight:900;font-size:0.95rem;color:#FC4C02;letter-spacing:-0.3px">Vélo & Météo</div>
+          <div style="font-size:0.63rem;opacity:0.5;margin-top:1px;font-weight:500">Analyse de tracé GPX</div>
         </div>
       </div>
     </div>""", unsafe_allow_html=True)
