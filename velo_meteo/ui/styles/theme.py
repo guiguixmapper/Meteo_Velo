@@ -67,7 +67,7 @@ CSS = """
     display: flex; align-items: stretch;
     border-radius: 12px; overflow: hidden;
     box-shadow: var(--shadow-md);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
   }
@@ -75,7 +75,7 @@ CSS = """
   /* Bloc score — toujours orange, texte toujours blanc */
   .score-left {
     background: #FC4C02;
-    color: white !important; padding: 18px 22px; min-width: 155px;
+    color: white !important; padding: 12px 18px; min-width: 140px;
     display: flex; flex-direction: column; justify-content: center; flex-shrink: 0;
     position: relative; overflow: hidden;
   }
@@ -86,8 +86,8 @@ CSS = """
   }
   .score-left * { color: white !important; }
   .score-left .score-num {
-    font-size: 3rem; font-weight: 900; line-height: 1;
-    letter-spacing: -2px; position: relative; z-index: 1;
+    font-size: 2.4rem; font-weight: 900; line-height: 1;
+    letter-spacing: -1.5px; position: relative; z-index: 1;
   }
   .score-left .score-num span { font-size: 1.1rem; font-weight: 600; opacity: 0.8; }
   .score-left .score-lbl {
@@ -95,7 +95,7 @@ CSS = """
     opacity: 0.95; text-transform: uppercase; letter-spacing: 0.5px;
     position: relative; z-index: 1;
   }
-  .score-left .score-badges { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .score-left .score-badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; position: relative; z-index: 1; }
   .score-left .score-badge {
     background: rgba(255,255,255,0.22); border-radius: 20px;
     padding: 2px 8px; font-size: 0.67rem; font-weight: 600;
@@ -105,7 +105,7 @@ CSS = """
   /* Cellules métriques — couleurs adaptatives */
   .metric-grid { display: flex; flex: 1; overflow: hidden; }
   .metric-cell {
-    flex: 1; min-width: 72px; text-align: center; padding: 16px 8px;
+    flex: 1; min-width: 65px; text-align: center; padding: 10px 6px;
     border-right: 1px solid var(--border-color);
     display: flex; flex-direction: column; justify-content: center;
     transition: background 0.12s;
@@ -115,7 +115,7 @@ CSS = """
 
   /* Valeurs — héritent la couleur du thème Streamlit (blanc en dark, noir en light) */
   .metric-cell .mv {
-    font-size: 1.5rem; font-weight: 900;
+    font-size: 1.25rem; font-weight: 900;
     letter-spacing: -0.5px; line-height: 1;
     /* PAS de color fixe — hérite automatiquement */
   }
