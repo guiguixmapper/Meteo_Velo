@@ -67,7 +67,7 @@ CSS = """
     display: flex; align-items: stretch;
     border-radius: 12px; overflow: hidden;
     box-shadow: var(--shadow-md);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
   }
@@ -75,7 +75,7 @@ CSS = """
   /* Bloc score — toujours orange, texte toujours blanc */
   .score-left {
     background: #FC4C02;
-    color: white !important; padding: 12px 18px; min-width: 140px;
+    color: white !important; padding: 10px 14px; min-width: 120px;
     display: flex; flex-direction: column; justify-content: center; flex-shrink: 0;
     position: relative; overflow: hidden;
   }
@@ -86,26 +86,26 @@ CSS = """
   }
   .score-left * { color: white !important; }
   .score-left .score-num {
-    font-size: 2.4rem; font-weight: 900; line-height: 1;
-    letter-spacing: -1.5px; position: relative; z-index: 1;
+    font-size: 2rem; font-weight: 900; line-height: 1;
+    letter-spacing: -1px; position: relative; z-index: 1;
   }
   .score-left .score-num span { font-size: 1.1rem; font-weight: 600; opacity: 0.8; }
   .score-left .score-lbl {
-    font-size: 0.72rem; font-weight: 700; margin-top: 4px;
-    opacity: 0.95; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 0.62rem; font-weight: 700; margin-top: 2px;
+    opacity: 0.95; text-transform: uppercase; letter-spacing: 0.3px;
     position: relative; z-index: 1;
   }
-  .score-left .score-badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .score-left .score-badges { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; position: relative; z-index: 1; }
   .score-left .score-badge {
     background: rgba(255,255,255,0.22); border-radius: 20px;
-    padding: 2px 8px; font-size: 0.67rem; font-weight: 600;
+    padding: 1px 6px; font-size: 0.60rem; font-weight: 600;
     border: 1px solid rgba(255,255,255,0.25);
   }
 
   /* Cellules métriques — couleurs adaptatives */
   .metric-grid { display: flex; flex: 1; overflow: hidden; }
   .metric-cell {
-    flex: 1; min-width: 65px; text-align: center; padding: 10px 6px;
+    flex: 1; min-width: 60px; text-align: center; padding: 8px 4px;
     border-right: 1px solid var(--border-color);
     display: flex; flex-direction: column; justify-content: center;
     transition: background 0.12s;
@@ -115,14 +115,14 @@ CSS = """
 
   /* Valeurs — héritent la couleur du thème Streamlit (blanc en dark, noir en light) */
   .metric-cell .mv {
-    font-size: 1.25rem; font-weight: 900;
-    letter-spacing: -0.5px; line-height: 1;
+    font-size: 1.1rem; font-weight: 900;
+    letter-spacing: -0.3px; line-height: 1;
     /* PAS de color fixe — hérite automatiquement */
   }
   .metric-cell .mu {
-    font-size: 0.62rem; font-weight: 700; margin-top: 2px;
+    font-size: 0.58rem; font-weight: 600; margin-top: 1px;
     color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.5px;
+    text-transform: uppercase; letter-spacing: 0.3px;
   }
   .metric-cell .ml { font-size: 0.6rem; margin-top: 3px; color: var(--text-muted); }
 
