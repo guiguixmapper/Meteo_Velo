@@ -208,7 +208,7 @@ CSS = """
   hr { border-color: var(--border-color) !important; }
 
   /* ── Slider accent Strava ── */
-  [data-testid="stSlider"] div[data-baseweb="slider"] div { background: #FC4C02 !important; }
+  [data-testid="stSlider"] > div > div > div { background: #FC4C02 !important; }
 
   /* ── Sidebar header border ── */
   .sb-header-border {
