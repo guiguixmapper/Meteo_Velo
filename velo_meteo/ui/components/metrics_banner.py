@@ -17,6 +17,11 @@ def render_metrics_banner(score: dict, dist_tot: float, d_plus: float, d_moins: 
 
     # ── Bloc score orange ─────────────────────────────────────────────────────
     with cols[0]:
+        # Logique visuelle : la météo est verte si elle aide (vent de dos global), rouge si elle détruit la sortie
+        c_meteo = "#FF3B30" if score["cout_meteo"] > 3.0 else "#34C759" if score["cout_meteo"] < 0 else "white"
+        signe_m = "-" if score["cout_meteo"] > 0 else "+"
+        val_m = abs(score["cout_meteo"])
+        
         st.markdown(
             f'<div style="background:#FC4C02;border-radius:10px;padding:6px 10px;'
             f'text-align:center;margin-top:2px">'
@@ -27,12 +32,12 @@ def render_metrics_banner(score: dict, dist_tot: float, d_plus: float, d_moins: 
             f'text-transform:uppercase;letter-spacing:0.4px;margin-top:1px">'
             f'{score["label"]}</div>'
             f'<div style="display:flex;gap:3px;margin-top:3px;justify-content:center">'
-            f'<span style="background:rgba(255,255,255,0.22);border-radius:8px;'
+            f'<span title="Coût physique de la route (Gravité)" style="background:rgba(255,255,255,0.22);border-radius:8px;'
             f'padding:1px 5px;font-size:0.55rem;color:white;font-weight:600">'
-            f'🌤️ {score["score_meteo"]}/6</span>'
-            f'<span style="background:rgba(255,255,255,0.22);border-radius:8px;'
-            f'padding:1px 5px;font-size:0.55rem;color:white;font-weight:600">'
-            f'🏔️ {score["score_cols"]}/4</span>'
+            f'⛰️ Route -{score["cout_gravite"]}</span>'
+            f'<span title="Impact de la météo (Aéro, Roulement, Thermique)" style="background:rgba(255,255,255,0.22);border-radius:8px;'
+            f'padding:1px 5px;font-size:0.55rem;color:{c_meteo};font-weight:800">'
+            f'🌤️ Météo {signe_m}{val_m}</span>'
             f'</div></div>',
             unsafe_allow_html=True)
 
