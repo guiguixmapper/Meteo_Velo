@@ -115,15 +115,16 @@ def analyser_meteo_detaillee(resultats: list, dist_tot: float) -> dict | None:
 
 def calculer_score(resultats, ascensions, d_plus, vitesse, ref_val, mode, poids, dist_tot):
     """
-    Calcule l'Indice de Roulabilité sur 10 basé sur la physique.
-    10 = Sortie parfaite. On soustrait les forces résistantes.
+    Indice de Roulabilité sur 10.
+    Départ à 10. La route enlève un tout petit peu de points, la météo peut en enlever beaucoup.
     """
     dist_km = dist_tot / 1000.0
     
-    # 1. Coût Gravitationnel (La Route)
-    cout_gravite = (dist_km / 30.0) + (d_plus / 300.0)
+    # 1. Pénalité de la route (NÉGLIGEABLE)
+    # 200km = -1 point / 2000m D+ = -1 point.
+    cout_route = (dist_km / 200.0) + (d_plus / 2000.0)
     
-    # 2. Coûts Météo (Moyenne sur les points de passage)
+    # 2. Pénalité Météo
     total_aero = 0.0
     total_roulement = 0.0
     total_thermique = 0.0
@@ -135,37 +136,41 @@ def calculer_score(resultats, ascensions, d_plus, vitesse, ref_val, mode, poids,
         temp = cp.get("temp_val", 20)
         effet = cp.get("effet", "")
         
-        # Perte thermique et densité de l'air (idéal = 20°C)
+        # Thermique (Idéal = 20°C). Ex: 10°C = -1 point.
         total_thermique += abs(temp - 20) / 10.0
         
-        # Résistance au roulement (asphalte mouillé)
-        total_roulement += pluie * 0.02
+        # Pluie (Ex: 100% = -3 points)
+        total_roulement += (pluie / 100.0) * 3.0
         
-        # Traînée aérodynamique (vitesse au carré)
+        # Vent (Ex: Face à 20km/h = -1.3 points)
         if "Face" in effet:
-            total_aero += (v_vent ** 2) / 200.0
+            total_aero += (v_vent ** 2) / 300.0
         elif "Côté" in effet:
-            total_aero += (v_vent ** 2) / 400.0
+            total_aero += (v_vent ** 2) / 600.0
         elif "Dos" in effet:
-            total_aero -= (v_vent ** 2) / 300.0 # Force propulsive !
+            total_aero -= (v_vent ** 2) / 400.0 # Bonus vent de dos
             
-    # Lissage des coûts météo sur tout le parcours
-    cout_meteo = (total_aero + total_roulement + total_thermique) / nb_cp
+    # Moyennes sur le parcours
+    perte_vent = total_aero / nb_cp
+    perte_pluie = total_roulement / nb_cp
+    perte_temp = total_thermique / nb_cp
     
-    # 3. Score Final (Plafonné entre 0 et 10)
-    score_brut = 10.0 - (cout_gravite + cout_meteo)
+    cout_meteo = perte_vent + perte_pluie + perte_temp
+    
+    # 3. Score Final
+    score_brut = 10.0 - cout_route - cout_meteo
     score_final = max(0.0, min(10.0, score_brut))
     
-    # 4. Labels d'expérience utilisateur
-    if score_final >= 8.0:   label = "CONDITIONS IDÉALES"
-    elif score_final >= 6.0: label = "TRÈS BONNE SORTIE"
-    elif score_final >= 4.0: label = "SORTIE EXIGEANTE"
-    elif score_final >= 2.0: label = "VRAIE GALÈRE"
+    # Labels
+    if score_final >= 8.5:   label = "CONDITIONS IDÉALES"
+    elif score_final >= 7.0: label = "TRÈS BONNE SORTIE"
+    elif score_final >= 5.0: label = "SORTIE RUGUEUSE"
+    elif score_final >= 3.0: label = "CONDITIONS DIFFICILES"
     else:                    label = "ENFER ABSOLU"
 
     return {
         "total": round(score_final, 1),
         "label": label,
-        "cout_gravite": round(cout_gravite, 1),
+        "cout_route": round(cout_route, 1),
         "cout_meteo": round(cout_meteo, 1)
     }
