@@ -208,26 +208,7 @@ CSS = """
   hr { border-color: var(--border-color) !important; }
 
   /* ── Slider accent Strava ── */
-  /* 1. On colore uniquement la barre de progression et le curseur */
-  [data-testid="stSlider"] div[data-baseweb="slider"] > div > div:nth-child(1) { 
-      background: #FC4C02 !important; 
-  }
-  [data-testid="stSlider"] div[role="slider"] { 
-      background: #FC4C02 !important; 
-      border-color: #FC4C02 !important; 
-  }
-  
-  /* 2. On empêche le fond de baver sur les chiffres au survol */
-  [data-testid="stSlider"] div[data-baseweb="slider"] div { 
-      background-color: transparent !important; 
-  }
-  
-  /* 3. On force les chiffres à être gris clair/blanc pour une lisibilité parfaite */
-  [data-testid="stSlider"] span, 
-  [data-testid="stSlider"] p,
-  [data-testid="stSlider"] div[data-baseweb="slider"] label { 
-      color: #f8fafc !important; 
-  }
+  [data-testid="stSlider"] > div > div > div { background: #FC4C02 !important; }
   
   /* ── Sidebar header border ── */
   .sb-header-border {
