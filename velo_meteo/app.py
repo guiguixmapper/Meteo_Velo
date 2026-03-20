@@ -80,6 +80,13 @@ def main():
         </div>""", unsafe_allow_html=True)
         return
 
+    st.markdown("""
+    <div style="margin-bottom: 1.5rem;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; color: #FC4C02; letter-spacing: -0.5px;">🚴‍♂️ Vélo & Météo</h1>
+        <p style="font-size: 0.9rem; opacity: 0.6; margin: 0; font-weight: 500;">Analyse de votre trace et prévisions en direct</p>
+    </div>
+    """, unsafe_allow_html=True)
+
     # ── Chargement GPX ─────────────────────────────────────────────────────────
     etapes = st.empty()
     with etapes.container():
